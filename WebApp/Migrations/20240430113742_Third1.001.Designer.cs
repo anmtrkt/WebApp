@@ -12,8 +12,8 @@ using WebApp.DB;
 namespace WebApp.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20240425181344_Second1.01")]
-    partial class Second101
+    [Migration("20240430113742_Third1.001")]
+    partial class Third1001
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -167,14 +167,11 @@ namespace WebApp.Migrations
                     b.Property<DateTime>("DateTo")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("HotelId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("HotelId")
+                        .HasColumnType("integer");
 
-                    b.Property<float>("Price")
-                        .HasColumnType("real");
-
-                    b.Property<Guid>("RoomId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("RoomId")
+                        .HasColumnType("integer");
 
                     b.Property<float>("TotalCost")
                         .HasColumnType("real");
@@ -196,15 +193,22 @@ namespace WebApp.Migrations
 
             modelBuilder.Entity("WebApp.DB.Hotel", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Location")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("Stars")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -213,19 +217,24 @@ namespace WebApp.Migrations
 
             modelBuilder.Entity("WebApp.DB.Room", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<Guid?>("BookingId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("HotelId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("HotelId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

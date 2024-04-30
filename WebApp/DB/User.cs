@@ -6,7 +6,7 @@ namespace WebApp.DB
     {
         public User()
         {
-            Bookings = [];
+            //Bookings = [];
         }
 
         /// <summary>
@@ -19,6 +19,6 @@ namespace WebApp.DB
         //Поля для токена
         public string? RefreshToken { get; set; }
         public DateTime RefreshTokenExpiryTime { get; set; }
-        public virtual ICollection<Booking> Bookings { get; set; }
+        //public virtual ICollection<Booking> Bookings { get; set; }
     }
 }

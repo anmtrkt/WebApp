@@ -5,6 +5,10 @@ using WebApp.Services.UserServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Numerics;
+
 namespace WebApp.Services.BookingServices
 {
     public class BookingService : IBookingService
@@ -18,22 +22,25 @@ namespace WebApp.Services.BookingServices
             _userManager = userManager; ;
         }
 
-        public async Task<List<Booking>?> GetUserBookings(string email)
+       /* public async Task<List<Booking>?> GetUserBookings(string email)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+      
             return await _context.Bookings.Where(b => b.User == user).ToListAsync();
-        }
-        public async Task<int> CreateBooking(Hotel hotel, Room room, DateTime DateFrom, DateTime DateTo)
+
+        }*/
+        public async Task<int> CreateBooking(/*Hotel hotel, Room room, User user,*/ DateTime DateFrom, DateTime DateTo)
         {
             var booking = new Booking
             {
+                Id = Guid.NewGuid(),
                 DateFrom = DateFrom,
                 DateTo = DateTo,
-                RoomId = room.Id,
-                HotelId = hotel.Id,
-                TotalDays = 1,
-                TotalCost = 2,
-                Price = 10,
+                RoomId = 12,//room.Id,
+                HotelId = 11, //hotel.Id,
+                TotalDays = (DateTo - DateFrom).Days,
+                TotalCost = /*room.Price*/ 5 * (DateTo - DateFrom).Days,
+                UserId = Guid.NewGuid(),
             };
             _context.AddAsync(booking);
             _context.SaveChanges();
