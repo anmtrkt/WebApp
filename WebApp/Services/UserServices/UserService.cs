@@ -2,7 +2,6 @@
 using WebApp.Extensions;
 using WebApp.Models;
 using WebApp.Services.Identity;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -15,15 +14,13 @@ namespace WebApp.Services.UserServices
 {
     public class UserService : IUserService
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly Context _context;
         private readonly ITokenService _token;
         private readonly IConfiguration _configuration;
         private readonly UserManager<User> _userManager;
 
-        public UserService(Context context, ITokenService token, IConfiguration configuration, UserManager<User> userManager, IHttpContextAccessor httpContextAccessor)
+        public UserService(Context context, ITokenService token, IConfiguration configuration, UserManager<User> userManager)
         {
-            _httpContextAccessor = httpContextAccessor;
             _context = context;
             _token = token;
             _configuration = configuration;
@@ -37,7 +34,6 @@ namespace WebApp.Services.UserServices
 
         public async Task<AuthResponse> Authenticate(User user)
         {
-            var httpContext = _httpContextAccessor.HttpContext;
             var roleIds = await _context.UserRoles.Where(r => r.UserId == user.Id).Select(x => x.RoleId).ToListAsync();
             var roles = await _context.Roles.Where(x => roleIds.Contains(x.Id)).ToListAsync();
 
@@ -46,7 +42,7 @@ namespace WebApp.Services.UserServices
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_configuration.GetSection("Jwt:RefreshTokenValidityInDays").Get<int>());
 
             await _context.SaveChangesAsync();
-           // httpContext.Response.Cookies.Append("test", accessToken);
+
             return new AuthResponse
             {
                 Username = user.UserName!,
@@ -73,7 +69,8 @@ namespace WebApp.Services.UserServices
                 ??
                 throw new Exception($"User {request.Email} not found");
 
-            //await _userManager.AddToRoleAsync(findUser, RoleConstants.Member);
+           //await _userManager.AddToRoleAsync(findUser, RoleConstants.Member);
+
             return new AuthenticationRequest
             {
                 Email = request.Email,

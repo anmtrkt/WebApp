@@ -18,7 +18,6 @@ namespace WebApp.RegistrationServices
             services.AddTransient<IUserService, UserService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddTransient<IBookingService, BookingService>();
-  
 
             return services;
         }

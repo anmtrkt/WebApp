@@ -4,7 +4,6 @@ using WebApp.DB;
 using WebApp.Models;
 using WebApp.Services.UserServices;
 using WebApp.Services.BookingServices;
-using Microsoft.AspNetCore.Authorization;
 
 namespace WebApp.Controllers
 {
@@ -25,8 +24,8 @@ namespace WebApp.Controllers
             _userManager = userManager;
             _configuration = configuration;
         }
-        
-        [HttpPost("Get Bookings"), Authorize]
+
+        [HttpPost("Get Bookings")]
         public async Task<IActionResult> GetUserBookings([FromBody] GetBookingRequest request)
         {
             return Ok(await _bookingService.GetUserBookings(request.Email));

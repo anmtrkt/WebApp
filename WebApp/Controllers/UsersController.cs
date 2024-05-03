@@ -6,11 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using System.Net.Http;
 
 namespace WebApp.Controllers
 {
@@ -59,15 +54,7 @@ namespace WebApp.Controllers
             if (user is null)
                 return Unauthorized();
 
-
-            var temp = await _userService.Authenticate(user);
-            HttpContext.Response.Cookies.Append("test", temp.Token, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                Expires = DateTime.UtcNow.AddMinutes(30)
-            });
-            return Ok(temp);
+            return Ok(await _userService.Authenticate(user));
         }
 
         [HttpPost("register")]
@@ -83,7 +70,6 @@ namespace WebApp.Controllers
             if (registrationRequest is null)
                 return BadRequest(request);
             else if (registrationRequest is AuthenticationRequest ar)
-                
                 return await Authenticate(ar);
 
             return BadRequest(request);
