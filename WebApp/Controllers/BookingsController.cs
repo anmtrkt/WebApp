@@ -29,7 +29,12 @@ namespace WebApp.Controllers
         [HttpPost("Get Bookings"), Authorize]
         public async Task<IActionResult> GetUserBookings([FromBody] GetBookingRequest request)
         {
-            return Ok(await _bookingService.GetUserBookings(request.Email));
+            return Ok(/*await _bookingService.GetUserBookings(request.Email)*/);
+        }
+        [HttpPost("Create Booking")]
+        public async Task<IActionResult> GetUserBookings([FromBody] CreateBookingRequest request)
+        {
+            return Ok(await _bookingService.CreateBooking(request.DateFrom, request.DateTo));
         }
     }
 }
