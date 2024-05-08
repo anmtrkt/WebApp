@@ -27,14 +27,17 @@ namespace WebApp.Controllers
         }
         
         [HttpPost("Get Bookings"), Authorize]
-        public async Task<IActionResult> GetUserBookings([FromBody] GetBookingRequest request)
+        public async Task<IActionResult> GetUserBookings()
+
         {
-            return Ok(/*await _bookingService.GetUserBookings(request.Email)*/);
+            var CurrentUser = _userManager.GetUserAsync(User).Result;
+            return Ok(await _bookingService.GetUserBookings(CurrentUser.Email));
         }
-        [HttpPost("Create Booking")]
-        public async Task<IActionResult> GetUserBookings([FromBody] CreateBookingRequest request)
+        [HttpPost("Create Booking"), Authorize]
+        public async Task<IActionResult> CreateUserBookings([FromBody] CreateBookingRequest request)
         {
-            return Ok(await _bookingService.CreateBooking(request.DateFrom, request.DateTo));
+            var CurrentUser = _userManager.GetUserAsync(User).Result;
+            return Ok(await _bookingService.CreateBooking(request.RoomId, request.HotelId, CurrentUser,request.DateFrom, request.DateTo));
         }
     }
 }

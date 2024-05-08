@@ -22,25 +22,26 @@ namespace WebApp.Services.BookingServices
             _userManager = userManager; ;
         }
 
-       /* public async Task<List<Booking>?> GetUserBookings(string email)
+        public async Task<List<Booking>?> GetUserBookings(string email)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
       
             return await _context.Bookings.Where(b => b.User == user).ToListAsync();
 
-        }*/
-        public async Task<int> CreateBooking(/*Hotel hotel, Room room, User user,*/ DateTime DateFrom, DateTime DateTo)
+        }
+        public async Task<int> CreateBooking(int HotelId, int RoomId, User user, DateTime DateFrom, DateTime DateTo)
         {
+            var room = await _context.Rooms.FirstOrDefaultAsync(r => r.Id == RoomId);
+            var hotel = await _context.Hotels.FirstOrDefaultAsync(h => h.Id == HotelId);
             var booking = new Booking
             {
                 Id = Guid.NewGuid(),
                 DateFrom = DateFrom,
                 DateTo = DateTo,
-                RoomId = 12,//room.Id,
-                HotelId = 11, //hotel.Id,
+                RoomId = room.Id,//room.Id,
                 TotalDays = (DateTo - DateFrom).Days,
-                TotalCost = /*room.Price*/ 5 * (DateTo - DateFrom).Days,
-                UserId = Guid.NewGuid(),
+                TotalCost = room.Price * (DateTo - DateFrom).Days,
+                UserId = user.Id,
             };
             _context.AddAsync(booking);
             _context.SaveChanges();

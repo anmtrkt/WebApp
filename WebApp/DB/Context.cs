@@ -22,7 +22,7 @@ namespace WebApp.DB
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
             .AddJsonFile("appsettings.json")
             .Build();
-            optionsBuilder.UseNpgsql(@"Host=localhost;Port=5432;Database=usersdb;Username=postgres;Password=postgres");//configuration.GetConnectionString("test"));
+            optionsBuilder.UseNpgsql(configuration.GetConnectionString("test"));//@"Host=localhost;Port=5432;Database=usersdb;Username=postgres;Password=postgres") ;//configuration.GetConnectionString("test"));
         }
     }
 }

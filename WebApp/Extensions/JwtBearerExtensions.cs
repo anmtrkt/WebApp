@@ -92,5 +92,13 @@ namespace WebApp.Extensions
 
             return principal;
         }
+        public static JwtSecurityToken ConvertJwtStringToJwtSecurityToken(string? jwt)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.ReadJwtToken(jwt);
+
+            return token;
+        }
+
     }
 }
