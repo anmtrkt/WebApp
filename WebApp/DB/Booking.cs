@@ -14,6 +14,7 @@ namespace WebApp.DB
         public int RoomId { get; set; } // foreign Key?? . done
         public Guid UserId { get; set; } // foreign key too .done
         public virtual User User { get; set; }
+        public virtual Hotel Hotel { get; set; }
         public virtual ICollection<Room> Rooms { get; set; }
     }
 }
