@@ -20,31 +20,39 @@ namespace WebApp.Services.BookingServices
         public BookingService(Context context, UserManager<User> userManager) 
         {
             _context = context;
-            _userManager = userManager; ;
+            _userManager = userManager; 
         }
 
-        public async Task<GetBookingResponse> GetUserBookings(string email)
+        public async Task<List<GetBookingResponse>> GetUserBookings(string email)
         {
-
-
+            
             var user = await _context.Users
                                     .FirstOrDefaultAsync(u => u.Email == email);
-            var bookings = await _context.Bookings
-                                    .Include(b => b.Rooms)
-                                    .ThenInclude(r => r.Hotel)
-                                    .Where(b => b.UserId == user.Id)
-                                    .ToListAsync();
-            
-            return bookings.Select(b => new GetBookingResponse
+            var booking = await _context.Bookings.Where(b => b.UserId == user.Id).ToListAsync();
+            var values = await _context.Bookings.Select(b => new 
             {
-                TotalDays = b.TotalDays,
-                TotalCost = b.TotalCost,
-                DateFrom = b.DateFrom,
-                DateTo = b.DateTo,
-                Rooms = b.Rooms,
-                HotelName = b.Hotel.Name,
-                HotelLocation = b.Hotel.Location,
-            });
+                b.DateFrom,
+                b.DateTo,
+                b.TotalDays,
+                b.TotalCost,
+                b.Hotel,
+                b.Rooms,
+            }).ToListAsync();
+            var Response = values.Select(item => new GetBookingResponse
+            {
+                DateFrom = item.DateFrom,
+                DateTo = item.DateTo,
+                TotalDays = item.TotalDays,
+                TotalCost = item.TotalCost,
+                HotelLocation = item.Hotel.Location,
+                HotelName = item.Hotel.Name,
+                RoomName = item.Rooms.Name,
+                Description = item.Rooms.Description,
+                Services = item.Rooms.Services,
+                Stars = item.Hotel.Stars,
+                
+            }).ToList();
+            return Response;
 
         }
         public async Task<string> CreateBooking(int HotelId, int RoomId, User user, DateTime DateFrom, DateTime DateTo)
@@ -62,11 +70,12 @@ namespace WebApp.Services.BookingServices
                 DateFrom = DateFrom,
                 DateTo = DateTo,
                 RoomId = room.Id,
+                HotelId = hotel.Id,
                 TotalDays = (DateTo - DateFrom).Days,
                 TotalCost = room.Price * (DateTo - DateFrom).Days,
                 UserId = user.Id,
             };
-            _context.AddAsync(booking);
+            await _context.AddAsync(booking);
             await _context.SaveChangesAsync();
             return "BOOKING CREATED"; 
         }

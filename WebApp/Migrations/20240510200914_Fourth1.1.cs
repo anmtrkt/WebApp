@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace WebApp.Migrations
 {
     /// <inheritdoc />
-    public partial class Fourth10 : Migration
+    public partial class Fourth11 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -191,7 +191,8 @@ namespace WebApp.Migrations
                     TotalCost = table.Column<float>(type: "real", nullable: false),
                     TotalDays = table.Column<int>(type: "integer", nullable: false),
                     RoomId = table.Column<int>(type: "integer", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    HotelId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -200,6 +201,12 @@ namespace WebApp.Migrations
                         name: "FK_Bookings_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Bookings_Hotels_HotelId",
+                        column: x => x.HotelId,
+                        principalTable: "Hotels",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -273,6 +280,11 @@ namespace WebApp.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Bookings_HotelId",
+                table: "Bookings",
+                column: "HotelId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Bookings_UserId",
                 table: "Bookings",
                 column: "UserId");
@@ -316,10 +328,10 @@ namespace WebApp.Migrations
                 name: "Bookings");
 
             migrationBuilder.DropTable(
-                name: "Hotels");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Hotels");
         }
     }
 }

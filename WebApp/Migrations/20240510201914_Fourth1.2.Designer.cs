@@ -3,6 +3,7 @@ using System;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WebApp.DB;
@@ -12,9 +13,11 @@ using WebApp.DB;
 namespace WebApp.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20240510201914_Fourth1.2")]
+    partial class Fourth12
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -184,8 +187,6 @@ namespace WebApp.Migrations
 
                     b.HasIndex("HotelId");
 
-                    b.HasIndex("RoomId");
-
                     b.HasIndex("UserId");
 
                     b.ToTable("Bookings");
@@ -233,6 +234,9 @@ namespace WebApp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid?>("BookingId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
@@ -256,6 +260,8 @@ namespace WebApp.Migrations
                         .HasColumnType("jsonb");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
 
                     b.HasIndex("HotelId");
 
@@ -402,12 +408,6 @@ namespace WebApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WebApp.DB.Room", "Rooms")
-                        .WithMany()
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("WebApp.DB.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -416,13 +416,15 @@ namespace WebApp.Migrations
 
                     b.Navigation("Hotel");
 
-                    b.Navigation("Rooms");
-
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("WebApp.DB.Room", b =>
                 {
+                    b.HasOne("WebApp.DB.Booking", null)
+                        .WithMany("Rooms")
+                        .HasForeignKey("BookingId");
+
                     b.HasOne("WebApp.DB.Hotel", "Hotel")
                         .WithMany("Rooms")
                         .HasForeignKey("HotelId")
@@ -430,6 +432,11 @@ namespace WebApp.Migrations
                         .IsRequired();
 
                     b.Navigation("Hotel");
+                });
+
+            modelBuilder.Entity("WebApp.DB.Booking", b =>
+                {
+                    b.Navigation("Rooms");
                 });
 
             modelBuilder.Entity("WebApp.DB.Hotel", b =>

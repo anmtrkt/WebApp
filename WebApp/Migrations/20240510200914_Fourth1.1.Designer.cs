@@ -13,8 +13,8 @@ using WebApp.DB;
 namespace WebApp.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20240507083224_Fourth1.0")]
-    partial class Fourth10
+    [Migration("20240510200914_Fourth1.1")]
+    partial class Fourth11
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -168,6 +168,9 @@ namespace WebApp.Migrations
                     b.Property<DateTime>("DateTo")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("HotelId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");
 
@@ -181,6 +184,8 @@ namespace WebApp.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("HotelId");
 
                     b.HasIndex("UserId");
 
@@ -397,11 +402,19 @@ namespace WebApp.Migrations
 
             modelBuilder.Entity("WebApp.DB.Booking", b =>
                 {
+                    b.HasOne("WebApp.DB.Hotel", "Hotel")
+                        .WithMany()
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("WebApp.DB.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Hotel");
 
                     b.Navigation("User");
                 });
