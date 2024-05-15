@@ -55,7 +55,7 @@ namespace WebApp.Services.BookingServices
             return Response;
 
         }
-        public async Task<string> CreateBooking(int HotelId, int RoomId, User user, DateTime DateFrom, DateTime DateTo)
+        public async Task<string> CreateBooking(int RoomId, int HotelId, User user, DateTime DateFrom, DateTime DateTo)
         {
             var room = await _context.Rooms
                                 .FirstOrDefaultAsync(r => r.Id == RoomId);

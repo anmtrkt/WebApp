@@ -36,9 +36,14 @@ namespace WebApp.Controllers
             return Ok(await _roomService.GetHotelRooms(HotelId));
         }
         [HttpPost("Create Room"), Authorize]
-        public async Task<IActionResult> CreateRoom(int Id, int HotelId, string Name, string? Description, int Price, string Services, int Quantity, int ImageId)
+        public async Task<IActionResult> CreateRoom(CreateRoomRequest request)
         {
-            return Ok(await _roomService.CreateRoom(Id, HotelId, Name, Description, Price, Services, Quantity, ImageId));
+            return Ok(await _roomService.CreateRoom(request.Id, request.HotelId, request.Name, request.Description, request.Price, request.Services, request.Quantity, request.ImageId));
+        }
+        [HttpDelete("Delete Room"), Authorize]
+        public async Task<IActionResult> DeleteRoom(int RoomId)
+        {
+            return Ok(await _roomService.DeleteRoom(RoomId));
         }
     }
 }

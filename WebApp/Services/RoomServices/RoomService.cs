@@ -45,5 +45,20 @@ namespace WebApp.Services.RoomServices
             await _context.SaveChangesAsync();
             return NewRoom;
         }
+        public async Task<bool> DeleteRoom(int RoomId)
+        {
+            var Room = await _context.Rooms.Where(r => r.Id == RoomId).FirstOrDefaultAsync();
+            if (Room == null)
+            {
+                return false;
+            }
+            else
+            {
+                            _context.Rooms.Remove(Room);
+            await _context.SaveChangesAsync();
+            return true;
+            }
+
+        }
     }
 }

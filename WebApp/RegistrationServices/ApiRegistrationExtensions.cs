@@ -1,5 +1,6 @@
 ﻿using WebApp.DB;
 using WebApp.Services.BookingServices;
+using WebApp.Services.HotelServices;
 using WebApp.Services.Identity;
 using WebApp.Services.RoomServices;
 using WebApp.Services.UserServices;
@@ -19,6 +20,7 @@ namespace WebApp.RegistrationServices
             services.AddScoped<ITokenService, TokenService>();
             services.AddTransient<IBookingService, BookingService>();
             services.AddTransient<IRoomService, RoomService>();
+            services.AddTransient<IHotelService, HotelService>();
 
             return services;
         }
