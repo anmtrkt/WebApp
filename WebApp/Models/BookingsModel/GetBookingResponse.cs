@@ -1,11 +1,13 @@
 ﻿using System.Text.Json;
 using WebApp.DB;
-namespace WebApp.Models
+using Newtonsoft;
+using SixLabors.ImageSharp;
+namespace WebApp.Models.BookingsModel
 {
     public class GetBookingResponse
     {
-        public DateTime DateFrom { get; set; }
-        public DateTime DateTo { get; set; }
+        public DateOnly DateFrom { get; set; }
+        public DateOnly DateTo { get; set; }
 
         public float TotalCost { get; set; }
         public int TotalDays { get; set; }
@@ -16,6 +18,7 @@ namespace WebApp.Models
         public string RoomName { get; set; }
         public string Description { get; set; }
         public JsonDocument Services { get; set; }
+        //public Image Image { get; set; }
 
     }
 }

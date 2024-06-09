@@ -8,7 +8,9 @@ namespace WebApp.DB
         public int Id { get; set; } // Primary key.  done
         public int HotelId { get; set; } // Foreign Key. done
         public string Name { get; set; }
+        public string? NormalizedName { get; set; }
         public string? Description { get; set; }
+        public string? NormalizedDescription { get; set; }
         public int Price { get; set; }
         public JsonDocument Services { get; set; }
         public int Quantity { get; set; }

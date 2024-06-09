@@ -6,27 +6,63 @@ using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
+using Hangfire;
+using Hangfire.PostgreSql;
+using System.Diagnostics;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 // Add services to the container.
 
+builder.Services.AddHangfire(config =>
+{
+    config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180);
+    config.UseSimpleAssemblyNameTypeSerializer();
+    config.UseDefaultTypeSerializer();
+    config.UseInMemoryStorage();
+    
+});
+
 
 builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "CursAPI"
+    });
+
+
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath);
+});
 
 //Добавляем сервис логгера
 builder.Services.AddTransient<ILogger>(s => s.GetRequiredService<ILogger<Program>>());
+builder.Services.AddStackExchangeRedisCache(options => {
+    options.Configuration = "localhost";
+    options.InstanceName = "local";
+});
 
 //Наши сервисы
-builder.Services.AddAuthentication();
-builder.Services.AddAuthorization();
+
 builder.Services.AddAuth();
 builder.Services.AddServices();
 builder.Services.AddHttpContextAccessor();
+
+
+
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -36,8 +72,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHangfireDashboard();
 //Добавляем наш Middleware
-
+app.UseHangfireServer();
 app.UseMiddleware<StartMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();

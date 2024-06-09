@@ -18,7 +18,7 @@ namespace WebApp.Extensions
             var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(JwtRegisteredClaimNames.Iat, DateTimeOffset.Now.ToUnixTimeSeconds().ToString()),
+            new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name, user.UserName!),
             new(ClaimTypes.Email, user.Email!),
@@ -82,7 +82,7 @@ namespace WebApp.Extensions
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]!)),
-                ValidateLifetime = false
+                ValidateLifetime = false,
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();

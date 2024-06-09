@@ -1,6 +1,5 @@
 ﻿using WebApp.DB;
 using WebApp.Extensions;
-using WebApp.Models;
 using WebApp.Services.UserServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +8,9 @@ using System;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Numerics;
 using Microsoft.AspNetCore.Http.HttpResults;
+using System.Security.Cryptography.X509Certificates;
+using WebApp.Models.BookingsModel;
+using Hangfire;
 
 namespace WebApp.Services.BookingServices
 {
@@ -23,13 +25,12 @@ namespace WebApp.Services.BookingServices
             _userManager = userManager; 
         }
 
-        public async Task<List<GetBookingResponse>> GetUserBookings(string email)
+        public async Task<List<GetBookingResponse?>> GetUserBookings(string email)
         {
             
             var user = await _context.Users
                                     .FirstOrDefaultAsync(u => u.Email == email);
-            var booking = await _context.Bookings.Where(b => b.UserId == user.Id).ToListAsync();
-            var values = await _context.Bookings.Select(b => new 
+            var booking = await _context.Bookings.Where(b => b.UserId == user.Id).Select(b => new
             {
                 b.DateFrom,
                 b.DateTo,
@@ -38,7 +39,8 @@ namespace WebApp.Services.BookingServices
                 b.Hotel,
                 b.Rooms,
             }).ToListAsync();
-            var Response = values.Select(item => new GetBookingResponse
+            
+            var Response = booking.Select(item => new GetBookingResponse
             {
                 DateFrom = item.DateFrom,
                 DateTo = item.DateTo,
@@ -50,12 +52,12 @@ namespace WebApp.Services.BookingServices
                 Description = item.Rooms.Description,
                 Services = item.Rooms.Services,
                 Stars = item.Hotel.Stars,
-                
+
             }).ToList();
             return Response;
 
         }
-        public async Task<string> CreateBooking(int RoomId, int HotelId, User user, DateTime DateFrom, DateTime DateTo)
+        public async Task<GetBookingResponse> CreateBooking(int RoomId, int HotelId, User user, DateOnly DateFrom, DateOnly DateTo)
         {
             var room = await _context.Rooms
                                 .FirstOrDefaultAsync(r => r.Id == RoomId);
@@ -71,13 +73,64 @@ namespace WebApp.Services.BookingServices
                 DateTo = DateTo,
                 RoomId = room.Id,
                 HotelId = hotel.Id,
-                TotalDays = (DateTo - DateFrom).Days,
-                TotalCost = room.Price * (DateTo - DateFrom).Days,
+                TotalDays = DateTo.DayNumber - DateFrom.DayNumber,
+                TotalCost = room.Price * (DateTo.DayNumber - DateFrom.DayNumber),
                 UserId = user.Id,
             };
             await _context.AddAsync(booking);
             await _context.SaveChangesAsync();
-            return "BOOKING CREATED"; 
+            var Response =  new GetBookingResponse
+            {
+                DateFrom = booking.DateFrom,
+                DateTo = booking.DateTo,
+                TotalDays = booking.TotalDays,
+                TotalCost = booking.TotalCost,
+                HotelLocation = booking.Hotel.Location,
+                HotelName = booking.Hotel.Name,
+                RoomName = booking.Rooms.Name,
+                Description = booking.Rooms.Description,
+                Services = booking.Rooms.Services,
+                Stars = booking.Hotel.Stars,
+            };
+            return Response; 
+        }
+        public async Task<bool> DeleteUserBooking(Guid BookingId)
+        {
+            var DeletedBooking = await _context.Bookings.FirstOrDefaultAsync(b => b.Id == BookingId);
+            if (DeletedBooking!=null){
+                _context.Bookings.Remove(DeletedBooking);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public async Task<object?> GetOneBooking(Guid BookingId)
+        {
+            var Booking = await _context.Bookings.FirstOrDefaultAsync(b => b.Id == BookingId);
+            if (Booking != null)
+            {
+                var Response = new GetBookingResponse
+                {
+                    DateFrom = Booking.DateFrom,
+                    DateTo = Booking.DateTo,
+                    TotalDays = Booking.TotalDays,
+                    TotalCost = Booking.TotalCost,
+                    HotelLocation = Booking.Hotel.Location,
+                    HotelName = Booking.Hotel.Name,
+                    RoomName = Booking.Rooms.Name,
+                    Description = Booking.Rooms.Description,
+                    Services = Booking.Rooms.Services,
+                    Stars = Booking.Hotel.Stars,
+                };
+                return Response;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using WebApp.DB;
 using WebApp.Extensions;
-using WebApp.Models;
 using WebApp.Services.Identity;
 
 using Microsoft.AspNetCore.Identity;
@@ -10,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebApp.Models.UsersModel;
 
 namespace WebApp.Services.UserServices
 {
@@ -20,9 +20,11 @@ namespace WebApp.Services.UserServices
         private readonly ITokenService _token;
         private readonly IConfiguration _configuration;
         private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole<Guid>> _roleManager;
 
-        public UserService(Context context, ITokenService token, IConfiguration configuration, UserManager<User> userManager, IHttpContextAccessor httpContextAccessor)
+        public UserService(RoleManager<IdentityRole<Guid>> roleManager, Context context, ITokenService token, IConfiguration configuration, UserManager<User> userManager, IHttpContextAccessor httpContextAccessor)
         {
+            _roleManager = roleManager;
             _httpContextAccessor = httpContextAccessor;
             _context = context;
             _token = token;
@@ -46,7 +48,6 @@ namespace WebApp.Services.UserServices
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_configuration.GetSection("Jwt:RefreshTokenValidityInDays").Get<int>());
 
             await _context.SaveChangesAsync();
-           // httpContext.Response.Cookies.Append("test", accessToken);
             return new AuthResponse
             {
                 Username = user.UserName!,
@@ -62,7 +63,8 @@ namespace WebApp.Services.UserServices
             {
                 Name = request.FirstName + " " + request.LastName + " " + request.MiddleName,
                 Email = request.Email,
-                UserName = request.Email
+                UserName = request.Email,
+                BirthDate = request.BirthDate
             };
             var result = await _userManager.CreateAsync(user, request.Password);
 
@@ -73,13 +75,18 @@ namespace WebApp.Services.UserServices
                 ??
                 throw new Exception($"User {request.Email} not found");
 
-            //await _userManager.AddToRoleAsync(findUser, RoleConstants.Member);
+            await _userManager.AddToRoleAsync(findUser, RoleConstants.Member);
             return new AuthenticationRequest
             {
                 Email = request.Email,
                 Password = request.Password
             };
+
+
         }
+
+    }
+}
         /// <summary>
         /// Подключить сваггер и доделать логин и регистрацию...
         /// 
@@ -100,29 +107,3 @@ namespace WebApp.Services.UserServices
         /// 
         /// </summary>
         /// <returns></returns>
-
-        #region
-        static string GetRandomStr() //private??
-        {
-            int x = GetRandomInt(4, 10);
-
-            string str = "";
-            var r = new Random();
-            while (str.Length < x)
-            {
-                char c = (char)r.Next(33, 125);
-                if (char.IsLetterOrDigit(c))
-                    str += c;
-            }
-            return str;
-        }
-        static int GetRandomInt(int from, int to)  //private???
-        {
-            var dig = new Random();
-            int x = dig.Next(from, to);
-            return x;
-        }
-    }
-}
-
-#endregion

@@ -3,6 +3,7 @@ using System;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WebApp.DB;
@@ -12,9 +13,11 @@ using WebApp.DB;
 namespace WebApp.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20240531074218_RoleAdding")]
+    partial class RoleAdding
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -159,11 +162,11 @@ namespace WebApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateOnly>("DateFrom")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("DateFrom")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateOnly>("DateTo")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("DateTo")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("HotelId")
                         .HasColumnType("integer");
@@ -284,8 +287,8 @@ namespace WebApp.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
-                    b.Property<DateOnly>("BirthDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("BirthDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()

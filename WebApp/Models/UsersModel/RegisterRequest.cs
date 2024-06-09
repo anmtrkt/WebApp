@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebApp.Models
+namespace WebApp.Models.UsersModel
 {
     public class RegisterRequest
     {
@@ -10,7 +10,7 @@ namespace WebApp.Models
 
         [Required]
         [Display(Name = "Дата рождения")]
-        public DateTime BirthDate { get; set; }
+        public DateOnly BirthDate { get; set; }
 
         [Required]
         [DataType(DataType.Password)]

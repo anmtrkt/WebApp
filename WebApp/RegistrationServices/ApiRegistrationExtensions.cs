@@ -1,9 +1,13 @@
-﻿using WebApp.DB;
+﻿using MailKit;
+using Microsoft.AspNetCore.Identity;
+using WebApp.DB;
+using WebApp.Services.AdminServices;
 using WebApp.Services.BookingServices;
 using WebApp.Services.HotelServices;
 using WebApp.Services.Identity;
 using WebApp.Services.RoomServices;
 using WebApp.Services.UserServices;
+using WebApp.Services.EmailServices;
 
 namespace WebApp.RegistrationServices
 {
@@ -21,8 +25,12 @@ namespace WebApp.RegistrationServices
             services.AddTransient<IBookingService, BookingService>();
             services.AddTransient<IRoomService, RoomService>();
             services.AddTransient<IHotelService, HotelService>();
+            services.AddTransient<IAdminService, AdminService>();
+            services.AddScoped<IEmailService, EmailService>();
+
 
             return services;
         }
+      
     }
 }

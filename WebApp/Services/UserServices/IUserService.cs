@@ -1,10 +1,10 @@
 ﻿using WebApp.DB;
-using WebApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebApp.Models.UsersModel;
 
 namespace WebApp.Services.UserServices
 {
@@ -14,5 +14,6 @@ namespace WebApp.Services.UserServices
         Task<User?> GetUserByEmail(string email);
         Task<AuthResponse> Authenticate(User user);
         Task<object?> Registration(RegisterRequest request);
+
     }
 }

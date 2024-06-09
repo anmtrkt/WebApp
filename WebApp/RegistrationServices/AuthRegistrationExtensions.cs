@@ -19,12 +19,26 @@ namespace WebApp.RegistrationServices
             .AddJsonFile("appsettings.json")
             .Build();
 
+            services.AddIdentity<User, IdentityRole<Guid>>(options =>
+            {
+                options.Password.RequiredLength = 4;
+                options.Password.RequireDigit = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.SignIn.RequireConfirmedAccount = false;
+            })
+.AddEntityFrameworkStores<Context>()
+.AddUserManager<UserManager<User>>()
+.AddSignInManager<SignInManager<User>>()
+.AddRoleManager<RoleManager<IdentityRole<Guid>>>();
+
             services.AddDbContext<Context>(option => option.UseNpgsql(configuration.GetConnectionString("test")));
 
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -35,7 +49,7 @@ namespace WebApp.RegistrationServices
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = configuration["Jwt:Issuer"],
                     ValidAudience = configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]!))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]!)),
                 };
 
                 options.Events = new JwtBearerEvents
@@ -55,18 +69,9 @@ namespace WebApp.RegistrationServices
                 options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
                     .RequireAuthenticatedUser()
                     .Build());
+            
 
-            services.AddIdentity<User, IdentityRole<Guid>>(options =>
-            {
-                options.Password.RequiredLength = 4;
-                options.Password.RequireDigit = false;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-            })
-            .AddEntityFrameworkStores<Context>()
-            .AddUserManager<UserManager<User>>()
-            .AddSignInManager<SignInManager<User>>();
-
+            
             return services;
         }
     }

@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using WebApp.DB;
-using WebApp.Models;
 using WebApp.Services.RoomServices;
 using WebApp.Services.BookingServices;
 using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
+using System.Net;
+using WebApp.Web;
+using WebApp.Models.RoomsModel;
+using WebApp.Models.UsersModel;
 
 namespace WebApp.Controllers
 {
@@ -24,26 +27,98 @@ namespace WebApp.Controllers
             _userManager = userManager;
             _configuration = configuration;
         }
-        [HttpGet("Get All Rooms"), Authorize]
+
+        /// <summary>
+        /// Все комнаты из БД
+        /// </summary>
+        /// <param name=""></param>>
+        /// <remarks>
+        /// Получение всех комнат
+        /// </remarks>
+        /// <returns>Список комнат</returns>
+        [HttpGet]
+        [Authorize(Roles = RoleConstants.Moderator)]
+        [Authorize(Roles = RoleConstants.Administrator)]
+        [Route(Routes.AllRoomsRoute)]
+        [ProducesResponseType(typeof(List<Room>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAllRooms()
         {
             var AllRooms = await _roomService.GetAllRooms();
             return Ok(AllRooms);
         }
-        [HttpGet("Get Hotel Rooms"), Authorize]
-        public async Task<IActionResult> GetHotelRooms(int HotelId)
-        {
-            return Ok(await _roomService.GetHotelRooms(HotelId));
-        }
-        [HttpPost("Create Room"), Authorize]
-        public async Task<IActionResult> CreateRoom(CreateRoomRequest request)
+        /// <summary>
+        /// Создание комнаты
+        /// </summary>
+        /// <param name="CreateRoomRequest"></param>>
+        /// <remarks>
+        /// Контроллер для создания комнаты
+        /// </remarks>
+        /// <returns>Room</returns>
+        [HttpPost]
+        [Authorize(Roles = RoleConstants.Moderator)]
+        [Authorize(Roles = RoleConstants.Administrator)]
+        [Route(Routes.CreateRoomRoute)]
+        [ProducesResponseType(typeof(Room), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+         public async Task<IActionResult> CreateRoom(CreateRoomRequest request)
         {
             return Ok(await _roomService.CreateRoom(request.Id, request.HotelId, request.Name, request.Description, request.Price, request.Services, request.Quantity, request.ImageId));
         }
-        [HttpDelete("Delete Room"), Authorize]
+        /// <summary>
+        /// Удаление комнаты
+        /// </summary>
+        /// <param name="RoomId"></param>>
+        /// <remarks>
+        /// Контроллер для удаления комнаты
+        /// </remarks>
+        /// <returns></returns>
+        [HttpDelete]
+        [Authorize(Roles = RoleConstants.Moderator)]
+        [Authorize(Roles = RoleConstants.Administrator)]
+        [Route(Routes.DeleteRoomRoute)]
+        [ProducesResponseType(typeof(Room), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> DeleteRoom(int RoomId)
         {
             return Ok(await _roomService.DeleteRoom(RoomId));
+        }
+        /// <summary>
+        /// Просто комната
+        /// </summary>
+        /// <param name="RoomId"></param>>
+        /// <remarks>
+        /// Контроллер для получения одной комнаты
+        /// </remarks>
+        /// <returns>Room</returns>
+        [HttpGet]
+        [Route(Routes.JustRoomRoute)]
+        [ProducesResponseType(typeof(Room), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> JustRoom(int RoomId)
+        {
+            return Ok(await _roomService.JustRoom(RoomId));
+        }
+        /// <summary>
+        /// Поиск комнаты по сервисам
+        /// </summary>
+        /// <param name="string, int, int"></param>>
+        /// <remarks>
+        /// Контроллер для поиска подходящей комнаты
+        /// </remarks>
+        /// <returns>Room</returns>
+        [HttpGet]
+        [Route(Routes.FindRoomRoute)]
+        [ProducesResponseType(typeof(Room), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> FindRoom(string Services, int MinPrice, int MaxPrice)
+        {
+            return Ok(await _roomService.FindRoom(Services, MinPrice, MaxPrice));
         }
     }
 }

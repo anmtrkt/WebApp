@@ -1,16 +1,17 @@
-﻿using WebApp.DB;
-using WebApp.Extensions;
-using WebApp.Models;
-using WebApp.Services.UserServices;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using System.Net.Http;
+using System.Net;
+using WebApp.DB;
+using WebApp.Extensions;
+using WebApp.Migrations;
+using WebApp.Models;
+using WebApp.Models.UsersModel;
+using WebApp.Services.EmailServices;
+using WebApp.Services.UserServices;
+using WebApp.Web;
 
 namespace WebApp.Controllers
 {
@@ -19,23 +20,37 @@ namespace WebApp.Controllers
     /// </summary>
     public class UserController : Controller
     {
+        private readonly IEmailService _emailService;
         private readonly ILogger _logger;
         private readonly IUserService _userService;
         private readonly Context _context;
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
-        public UserController(ILogger logger, IUserService userService, Context context, UserManager<User> userManager, IConfiguration configuration)
+        private readonly RoleManager<IdentityRole<Guid>> _roleManager;
+        public UserController(IEmailService emailService, RoleManager<IdentityRole<Guid>> roleManager, ILogger logger, IUserService userService, Context context, UserManager<User> userManager, IConfiguration configuration)
         {
+            _emailService = emailService;
+            _roleManager = roleManager;
             _logger = logger;
             _userService = userService;
             _context = context;
             _userManager = userManager;
             _configuration = configuration;
         }
-
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Authenticate([FromBody] AuthenticationRequest request)
+        /// <summary>
+        /// Аутентификация
+        /// </summary>
+        /// <param name="AuthenticationRequest"></param>>
+        /// <remarks>
+        /// Контроллер для аутентификации
+        /// </remarks>
+        /// <returns>AuthResponse</returns>
+        [HttpPost]
+        [Route(Routes.LoginRoute)]
+        [ProducesResponseType(typeof(AuthResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> Authenticate(AuthenticationRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -45,7 +60,7 @@ namespace WebApp.Controllers
             var managedUser = await _userManager.FindByEmailAsync(request.Email);
             if (managedUser == null)
             {
-                return BadRequest("Bad credentials(wrong email");
+                return BadRequest("Bad credentials");
             }
 
             var isPasswordValid = await _userManager.CheckPasswordAsync(managedUser, request.Password);
@@ -70,27 +85,55 @@ namespace WebApp.Controllers
             return Ok(temp);
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        /// <summary>
+        /// Регистрация
+        /// </summary>
+        /// <param name="RegisterRequest"></param>>
+        /// <remarks>
+        /// Регистрация нового пользователя
+        /// </remarks>
+        /// <returns>AuthResponse</returns>
+        [HttpPost]
+        [Route(Routes.RegistrationRoute)]
+        [ProducesResponseType(typeof(AuthResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> Register(RegisterRequest request)
         {
             if (!ModelState.IsValid) return BadRequest(request);
 
             var registrationRequest = await _userService.Registration(request);
-            //if (!await _roleManager.RoleExistsAsync(RoleConstants.Member))
-            //{
-            //    await _roleManager.CreateAsync(new IdentityRole(RoleConstants.Member));
-            //}
+            if (!await _roleManager.RoleExistsAsync(RoleConstants.Administrator))
+            {
+                await _roleManager.CreateAsync(new IdentityRole<Guid>(RoleConstants.Moderator));
+            }
             if (registrationRequest is null)
                 return BadRequest(request);
             else if (registrationRequest is AuthenticationRequest ar)
-                
+            {
+                var mail = await _emailService.RegisterMail(request.Email, $"{request.FirstName} {request.MiddleName}");
+                if (!mail) {
+                    return BadRequest("something went wrong");
+                }
                 return await Authenticate(ar);
+            }
 
             return BadRequest(request);
         }
 
+        /// <summary>
+        /// Рефреш токен
+        /// </summary>
+        /// <param name="ObjectResult"></param>>
+        /// <remarks>
+        /// Рефреш токен чзх
+        /// </remarks>
+        /// <returns>ObjectResult</returns>
         [HttpPost]
-        [Route("refresh-token")]
+        [Route(Routes.RefreshRoute)]
+        [ProducesResponseType(typeof(ObjectResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RefreshToken(TokenModel? tokenModel)
         {
             if (tokenModel is null)
@@ -127,5 +170,6 @@ namespace WebApp.Controllers
                 refreshToken = newRefreshToken
             });
         }
+
     }
 }
