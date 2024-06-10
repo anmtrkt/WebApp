@@ -10,6 +10,7 @@ using WebApp.DB;
 using WebApp.Services.RoomServices;
 using WebApp.Models.HotelsModel;
 
+
 namespace WebApp.Services.HotelServices
 {
     public class HotelService : IHotelService
@@ -20,6 +21,7 @@ namespace WebApp.Services.HotelServices
         public HotelService(Context context, UserManager<User> userManager, IDistributedCache distributedCache)
         {
             _context = context;
+
             _userManager = userManager; 
             _cacheManager = distributedCache;
         }
@@ -107,13 +109,19 @@ namespace WebApp.Services.HotelServices
             }).ToList();
             return Response;
         }
-        public async Task<GetHotelResponse?> GetOneHotel(int HotelId)
+        public async Task<object?> GetOneHotel(int HotelId)
         {
             var Hotel = await _context.Hotels.FirstOrDefaultAsync(H => H.Id == HotelId);
-            string? filePath = Path.Combine("static", "images", $"{Hotel.ImageId}.webp");
-            byte[] imageData = System.IO.File.ReadAllBytes(filePath);
+            if (Hotel == null)
+            {
+                return "Такой отель отсутсвует";
+            }
+            
+            //string? filePath = Path.Combine("static", "images", $"{Hotel.ImageId}.webp");
+           
+            //byte[] imageData = System.IO.File.ReadAllBytes(filePath);
 
-            var image= new FileContentResult(imageData, "image/webp");
+            //var image= new FileContentResult(imageData, "image/webp");
 
             return new GetHotelResponse
                 {
@@ -123,8 +131,8 @@ namespace WebApp.Services.HotelServices
                     Name = Hotel.Name,
                     Location = Hotel.Location,
                     Stars = Hotel.Stars,
-                    ImageId = Hotel.ImageId,
-                    Image = image
+                    //ImageId = Hotel.ImageId,
+                    //Image = image
                 };
             
         }
@@ -141,15 +149,15 @@ namespace WebApp.Services.HotelServices
             {
                 Id = Id,
                 Name = Name,
-                NormalizedName = Name.Normalize(),
+                NormalizedName = Name.ToLower().ToUpper(),
                 Location = Location,
-                NormalizedLocation = Location.Normalize(),
+                NormalizedLocation = Location.ToLower().ToUpper(),
                 RoomsQuantity = RoomsQuantity,
                 Services = JSONServices,
                 ImageId = ImageId,
                 Stars = Stars,
             };
-            await _context.AddAsync(NewHotel);
+            await _context.Hotels.AddAsync(NewHotel);
             await _context.SaveChangesAsync();
             return new GetHotelResponse
             {

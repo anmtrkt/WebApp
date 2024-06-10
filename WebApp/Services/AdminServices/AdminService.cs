@@ -77,8 +77,7 @@ namespace WebApp.Services.AdminServices
                 Name = item.Name,
                 Password = item.PasswordHash,
                 Email = item.Email,
-                Sex = item.Sex
-
+                Sex = item.Sex,
             }).ToList();
             return Response;
         }
@@ -111,7 +110,8 @@ namespace WebApp.Services.AdminServices
         {
             try
             {
-                await _context.Users.Where(u => u.Id == UserId).ExecuteDeleteAsync();
+                var temp = await _context.Users.Where(u => u.Id == UserId).ExecuteDeleteAsync();
+                if (temp != 1) return false;
                 await _context.SaveChangesAsync();
                 return true;
             }

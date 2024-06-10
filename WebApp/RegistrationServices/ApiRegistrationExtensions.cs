@@ -9,6 +9,7 @@ using WebApp.Services.RoomServices;
 using WebApp.Services.UserServices;
 using WebApp.Services.EmailServices;
 
+
 namespace WebApp.RegistrationServices
 {
     public static class ApiRegistrationExtensions
@@ -27,6 +28,7 @@ namespace WebApp.RegistrationServices
             services.AddTransient<IHotelService, HotelService>();
             services.AddTransient<IAdminService, AdminService>();
             services.AddScoped<IEmailService, EmailService>();
+
 
 
             return services;

@@ -6,6 +6,7 @@ namespace WebApp.Models.BookingsModel
 {
     public class GetBookingResponse
     {
+        public Guid Id { get; set; }
         public DateOnly DateFrom { get; set; }
         public DateOnly DateTo { get; set; }
 

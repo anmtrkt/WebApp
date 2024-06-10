@@ -8,8 +8,8 @@ namespace WebApp.Services.BookingServices
         Task<object?> GetOneBooking(Guid BokingId);
         Task<List<GetBookingResponse?>> GetUserBookings(string email);
         Task<bool> DeleteUserBooking(Guid BookingId);
-        Task<GetBookingResponse> CreateBooking(int HotelId, int RoomId,User user, DateOnly DateFrom, DateOnly DateTo);
-        //bool DeleteBooking(Booking booking);
+        Task<GetBookingResponse?> CreateBooking(int HotelId, int RoomId,User user, DateOnly DateFrom, DateOnly DateTo);
+
         
     }
 }

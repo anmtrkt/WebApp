@@ -37,8 +37,7 @@ namespace WebApp.Controllers
         /// </remarks>
         /// <returns>Список комнат</returns>
         [HttpGet]
-        [Authorize(Roles = RoleConstants.Moderator)]
-        [Authorize(Roles = RoleConstants.Administrator)]
+        [Authorize(Roles = $"{RoleConstants.Moderator}, {RoleConstants.Administrator}")]
         [Route(Routes.AllRoomsRoute)]
         [ProducesResponseType(typeof(List<Room>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
@@ -57,8 +56,7 @@ namespace WebApp.Controllers
         /// </remarks>
         /// <returns>Room</returns>
         [HttpPost]
-        [Authorize(Roles = RoleConstants.Moderator)]
-        [Authorize(Roles = RoleConstants.Administrator)]
+        [Authorize(Roles = $"{RoleConstants.Moderator}, {RoleConstants.Administrator}")]
         [Route(Routes.CreateRoomRoute)]
         [ProducesResponseType(typeof(Room), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
@@ -76,8 +74,7 @@ namespace WebApp.Controllers
         /// </remarks>
         /// <returns></returns>
         [HttpDelete]
-        [Authorize(Roles = RoleConstants.Moderator)]
-        [Authorize(Roles = RoleConstants.Administrator)]
+        [Authorize(Roles = $"{RoleConstants.Moderator}, {RoleConstants.Administrator}")]
         [Route(Routes.DeleteRoomRoute)]
         [ProducesResponseType(typeof(Room), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
@@ -101,7 +98,10 @@ namespace WebApp.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> JustRoom(int RoomId)
         {
-            return Ok(await _roomService.JustRoom(RoomId));
+            var temp = await _roomService.JustRoom(RoomId);
+            if (temp != null)
+                return Ok(temp);
+            else return BadRequest("Что-то пошло не так");
         }
         /// <summary>
         /// Поиск комнаты по сервисам

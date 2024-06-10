@@ -14,7 +14,7 @@ namespace WebApp.Models.HotelsModel
         public int ImageId { get; set; }
         public JsonDocument Services { get; set; }
         public int Stars { get; set; }
-        public Image? Image { get; set; }
+        public IResult? Image { get; set; }
 
     }
 }

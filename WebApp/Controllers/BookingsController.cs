@@ -75,13 +75,15 @@ namespace WebApp.Controllers
         [ProducesResponseType(typeof(GetBookingResponse), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> CreateUserBookings([FromBody] CreateBookingRequest request)
+        public async Task<IActionResult> CreateUserBookings(CreateBookingRequest request)
         {
             var CurrentUser = _userManager.GetUserAsync(User).Result;
-            if (request.DateTo.CompareTo(request.DateFrom) < 0) return BadRequest("Bad credentials");
+                if (request.DateTo.CompareTo(request.DateFrom) < 0) return BadRequest("Bad credentials");
 
             
             var booking = await _bookingService.CreateBooking(request.RoomId, request.HotelId, CurrentUser, request.DateFrom, request.DateTo);
+            if (booking == null) return BadRequest("Что-то пошло не так");
+       
             var SendMail = _emailService.BookingMail(CurrentUser.Email, CurrentUser.Name, booking);
             var temp = await _emailService.Reminder(request.DateFrom, CurrentUser.Email, CurrentUser.Name, booking);
 
@@ -121,6 +123,8 @@ namespace WebApp.Controllers
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBooking(Guid BookingId)
         {
+            var temp = await _bookingService.GetOneBooking(BookingId);
+            if (temp == null) return BadRequest("Что-то пошло не так");
             return Ok(await _bookingService.GetOneBooking(BookingId));
         }
     }

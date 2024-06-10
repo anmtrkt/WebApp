@@ -82,7 +82,7 @@ namespace WebApp.Controllers
             {
                 return BadRequest("Введите адрес");
             }
-            if (Stars.GetType() != typeof(int))
+            if (Stars != null && Stars.GetType() != typeof(int))
             {
                 return BadRequest("STARS MUST BE INT");
             }
@@ -122,8 +122,7 @@ namespace WebApp.Controllers
         /// </remarks>
         /// <returns>GetHotelResponse</returns>
         [HttpPost]
-        [Authorize(Roles = RoleConstants.Moderator)]
-        [Authorize(Roles = RoleConstants.Administrator)]
+        [Authorize(Roles = $"{RoleConstants.Moderator}, {RoleConstants.Administrator}")]
         [Route(Routes.CreateHotelRoute)]
         [ProducesResponseType(typeof(Hotel), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
@@ -141,8 +140,7 @@ namespace WebApp.Controllers
         /// </remarks>
         /// <returns>bool</returns>
         [HttpDelete]
-        [Authorize(Roles = RoleConstants.Moderator)]
-        [Authorize(Roles = RoleConstants.Administrator)]
+        [Authorize(Roles = $"{RoleConstants.Moderator}, {RoleConstants.Administrator}")]
         [Route(Routes.DeleteHotelRoute)]
         [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]

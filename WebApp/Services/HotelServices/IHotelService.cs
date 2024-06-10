@@ -5,7 +5,7 @@ namespace WebApp.Services.HotelServices
 {
     public interface IHotelService
     {
-        Task<GetHotelResponse> GetOneHotel(int HotelId);
+        Task<object?> GetOneHotel(int HotelId);
         Task<List<Room?>> GetHotelRooms(int HotelId);
         Task<bool> DeleteHotel(int HotelId);
         Task<List<GetHotelResponse?>> GetHotelsByLocationAndServices(string Location, string? UserServices, int? Stars);
