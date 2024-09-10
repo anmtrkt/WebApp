@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/WebApp/appsettings.json
+/WebApp/HELP.txt
+/WebApp/Dockerfile
+/WebApp/ПЛАНЫ РАБОТ.txt
