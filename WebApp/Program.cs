@@ -34,9 +34,9 @@ builder.Services.AddControllers().AddJsonOptions(x =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v2", new OpenApiInfo
+    options.SwaggerDoc("v1", new OpenApiInfo
     {
-        Version = "v2",
+        Version = "v1",
         Title = "BookingsAPI"
     });
 
